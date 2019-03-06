@@ -15,7 +15,7 @@ public class GeojsonController {
         this.geojsonService = geojsonService;
     }
 
-    @RequestMapping("/{cityName}")
+    @RequestMapping("/geojson/{cityName}")
     String getGeoJsonFromCityName(@PathVariable String cityName) {
         return geojsonService.lookForGeoJson(cityName);
     }

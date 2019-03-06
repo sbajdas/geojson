@@ -1,4 +1,4 @@
 # geojson
 Spring boot application for geojson retrieving and manipulation
 
-Endpoint: /{cityName}
+Endpoint: /geojson/{cityName}

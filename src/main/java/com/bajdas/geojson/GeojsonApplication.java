@@ -5,7 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 /**
  * Simple REST Service for retrieving GeoJson prepared from a given city name
- * City name input by path variable : /{cityName}
+ * City name input by path variable : /geojson/{cityName}
  *
  * @author Slawomir_Bajdas
  */
