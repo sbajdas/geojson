@@ -1,8 +1,8 @@
 package com.bajdas.geojson.controller;
 
 import com.bajdas.geojson.service.GeojsonService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+import org.geojson.GeometryCollection;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -10,10 +10,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 
+@Slf4j
 @RestController
 public class GeojsonController {
     private final GeojsonService geojsonService;
-    private Logger logger = LoggerFactory.getLogger(GeojsonController.class);
 
     @Autowired
     public GeojsonController(GeojsonService geojsonService) {
@@ -21,10 +21,10 @@ public class GeojsonController {
     }
 
     @RequestMapping("/geojson/{cityName}")
-    String getGeoJsonFromCityName(HttpServletRequest request, @PathVariable String cityName) {
+    GeometryCollection getGeoJsonFromCityName(HttpServletRequest request, @PathVariable String cityName) {
 
-        String userName = request.getUserPrincipal().getName();
-        logger.info(String.format("%s : %s", userName,cityName));
+        String userName = request.getRemoteUser();
+        log.info(String.format("geoJSON requested by %s : looking for %s", userName, cityName));
         return geojsonService.lookForGeoJson(cityName);
     }
 }
