@@ -1,5 +1,6 @@
 package com.bajdas.geojson.service;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
@@ -12,6 +13,12 @@ public class CityIdResolver {
     final static String NO_CITY_FOUND = "0";
     @Value("${idsearch}")
     private String apiQueryUrl;
+    private final RestTemplate restTemplate;
+
+    @Autowired
+    public CityIdResolver(RestTemplate restTemplate) {
+        this.restTemplate = restTemplate;
+    }
 
     /**
      * Method for retrieving place ID from OpenStreetMap API
@@ -31,7 +38,6 @@ public class CityIdResolver {
 
     private CityMetaData[] getSearchResult(String cityName) {
         URI uri = UriComponentsBuilder.fromUriString(apiQueryUrl).queryParam("format", "json").queryParam("q", cityName).build().toUri();
-        RestTemplate restTemplate = new RestTemplate();
         return restTemplate.getForObject(uri, CityMetaData[].class);
     }
 }
