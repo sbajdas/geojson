@@ -3,6 +3,7 @@ package com.bajdas.geojson.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -28,19 +29,21 @@ public class CityIdService {
      * If no city is found, default return is 0.
      *
      * @param cityName city name to look up for, from user's input
-     * @return cityId
+     * @return cityMetaData containing cityId
      */
-    String getCityId(String cityName) {
-        CityMetaData[] metadataResults = getSearchResult(cityName);
-        return (metadataResults.length > 0) ? osmIdFromSearchResults(metadataResults) : NO_CITY_FOUND;
+    CityMetaData getCityMetaData(String cityName) throws RestApiException {
+        try {
+            return getSearchResult(cityName);
+        } catch (RestClientException e) {
+            throw new RestApiException();
+        }
     }
 
-    private String osmIdFromSearchResults(CityMetaData[] metadataResults) {
-        return metadataResults[0].osm_id;
-    }
-
-    private CityMetaData[] getSearchResult(String cityName) {
+    private CityMetaData getSearchResult(String cityName) throws RestApiNotFoundException {
         URI uri = UriComponentsBuilder.fromUriString(apiQueryUrl).queryParam(FORMAT_KEY, FORMAT_VALUE_JSON).queryParam(QUERY_KEY, cityName).build().toUri();
-        return restTemplate.getForObject(uri, CityMetaData[].class);
+        CityMetaData[] resultMetaData = restTemplate.getForObject(uri, CityMetaData[].class);
+        if (resultMetaData == null || resultMetaData.length == 0)
+            throw new RestApiNotFoundException();
+        return resultMetaData[0];
     }
 }
