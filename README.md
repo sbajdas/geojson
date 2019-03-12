@@ -1,4 +1,6 @@
 # geojson
 Spring boot application for geojson retrieving and manipulation
 
-Endpoint: /geojson/{cityName}
+Muti-requests possible, delimiter is ','
+
+Endpoint: /geojson/{cityNames}
