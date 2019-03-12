@@ -10,10 +10,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * @author Slawomir_Bajdas
  */
 @SpringBootApplication
-public class GeojsonApplication {
+public class CityBoundariesApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(GeojsonApplication.class, args);
+        SpringApplication.run(CityBoundariesApplication.class, args);
     }
 
 }

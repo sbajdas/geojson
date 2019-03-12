@@ -10,14 +10,15 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.net.URI;
 
 @Service
-public class GeojsonService {
-    private final CityIdResolver cityNameResolver;
+public class CityBoundariesService {
+    private static final String ID_KEY = "id";
+    private final CityIdService cityNameResolver;
     private final RestTemplate restTemplate;
     @Value("${geojsonSearch}")
     private String geojsonApiQuery;
 
     @Autowired
-    public GeojsonService(CityIdResolver cityNameResolver, RestTemplate restTemplate) {
+    public CityBoundariesService(CityIdService cityNameResolver, RestTemplate restTemplate) {
         this.cityNameResolver = cityNameResolver;
         this.restTemplate = restTemplate;
     }
@@ -29,17 +30,16 @@ public class GeojsonService {
      * @param cityName city name from user input
      * @return geoJSON as String
      */
-    public GeometryCollection lookForGeoJson(String cityName) {
-        String cityId = cityNameResolver.getIdFromApi(cityName);
-        if (cityId.equals(CityIdResolver.NO_CITY_FOUND)) {
-//            return String.format("Can't find GeoJSON for the city name %s, sorry.", cityName);
+    public GeometryCollection getCityBoundaries(String cityName) {
+        String cityId = cityNameResolver.getCityId(cityName);
+        if (cityId.equals(CityIdService.NO_CITY_FOUND)) {
             return null;
         }
-        return getGeoJsonFromApi(cityId);
+        return getCityBoundariesFromApi(cityId);
     }
 
-    private GeometryCollection getGeoJsonFromApi(String cityId) {
-        URI uri = UriComponentsBuilder.fromUriString(geojsonApiQuery).queryParam("id", cityId).build().toUri();
+    private GeometryCollection getCityBoundariesFromApi(String cityId) {
+        URI uri = UriComponentsBuilder.fromUriString(geojsonApiQuery).queryParam(ID_KEY, cityId).build().toUri();
         return restTemplate.getForObject(uri, GeometryCollection.class);
     }
 

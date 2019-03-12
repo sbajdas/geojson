@@ -9,25 +9,28 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.net.URI;
 
 @Component
-public class CityIdResolver {
+public class CityIdService {
     final static String NO_CITY_FOUND = "0";
+    private static final String FORMAT_KEY = "format";
+    private static final String FORMAT_VALUE_JSON = "json";
+    private static final String QUERY_KEY = "q";
     @Value("${idsearch}")
     private String apiQueryUrl;
     private final RestTemplate restTemplate;
 
     @Autowired
-    public CityIdResolver(RestTemplate restTemplate) {
+    public CityIdService(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
     }
 
     /**
-     * Method for retrieving place ID from OpenStreetMap API
+     * Method for retrieving place ID_KEY from OpenStreetMap API
      * If no city is found, default return is 0.
      *
      * @param cityName city name to look up for, from user's input
      * @return cityId
      */
-    String getIdFromApi(String cityName) {
+    String getCityId(String cityName) {
         CityMetaData[] metadataResults = getSearchResult(cityName);
         return (metadataResults.length > 0) ? osmIdFromSearchResults(metadataResults) : NO_CITY_FOUND;
     }
@@ -37,7 +40,7 @@ public class CityIdResolver {
     }
 
     private CityMetaData[] getSearchResult(String cityName) {
-        URI uri = UriComponentsBuilder.fromUriString(apiQueryUrl).queryParam("format", "json").queryParam("q", cityName).build().toUri();
+        URI uri = UriComponentsBuilder.fromUriString(apiQueryUrl).queryParam(FORMAT_KEY, FORMAT_VALUE_JSON).queryParam(QUERY_KEY, cityName).build().toUri();
         return restTemplate.getForObject(uri, CityMetaData[].class);
     }
 }
