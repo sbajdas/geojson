@@ -1,4 +1,4 @@
-package com.bajdas.geojson.service;
+package com.bajdas.geojson.exception;
 
 public class RestApiNotFoundException extends RestApiException {
     @Override

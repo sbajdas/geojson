@@ -1,7 +1,7 @@
 package com.bajdas.geojson.controller;
 
 import com.bajdas.geojson.service.CityBoundariesService;
-import com.bajdas.geojson.service.RestApiException;
+import com.bajdas.geojson.exception.RestApiException;
 import lombok.extern.slf4j.Slf4j;
 import org.geojson.GeometryCollection;
 import org.springframework.beans.factory.annotation.Autowired;

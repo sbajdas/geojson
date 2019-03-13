@@ -1,5 +1,10 @@
 package com.bajdas.geojson.service;
 
+import com.bajdas.geojson.exception.RestApiException;
+import com.bajdas.geojson.exception.RestApiNotFoundException;
+import com.bajdas.geojson.model.CityGeography;
+import com.bajdas.geojson.model.CityGeographyCollection;
+import com.bajdas.geojson.model.CityMetaData;
 import org.geojson.GeometryCollection;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,8 +31,8 @@ public class CityBoundariesService {
     }
 
 
-    private GeometryCollection getCityBoundariesFromApi(String cityId) throws RestApiException {
-        URI uri = UriComponentsBuilder.fromUriString(geojsonApiQuery).queryParam(ID_KEY, cityId).build().toUri();
+    private GeometryCollection getCityBoundariesFromApi(CityGeography cityDetails) throws RestApiException {
+        URI uri = UriComponentsBuilder.fromUriString(geojsonApiQuery).queryParam(ID_KEY, cityDetails.getOsmId()).build().toUri();
         GeometryCollection cityBoundaries;
         try {
             cityBoundaries = restTemplate.getForObject(uri, GeometryCollection.class);
@@ -47,15 +52,19 @@ public class CityBoundariesService {
      * @return geoJSON as String
      */
     public GeometryCollection getBatchCityBoundaries(List<String> cityNames) throws RestApiException {
-        GeometryCollection response = new GeometryCollection();
-        for (String s : cityNames) {
-            response.getGeometries().addAll(getCityBoundaries(s).getGeometries());
+        CityGeographyCollection response = new CityGeographyCollection();
+        for (String cityName : cityNames) {
+            CityGeography singleCity = getCityGeography(cityName);
+            response.put(cityName,singleCity);
         }
-        return response;
+        return response.getAllPolygons();
     }
 
-    private GeometryCollection getCityBoundaries(String cityName) throws RestApiException {
-        String cityId = cityNameResolver.getCityMetaData(cityName).osm_id;
-        return getCityBoundariesFromApi(cityId);
+    private CityGeography getCityGeography(String cityName) throws RestApiException {
+        CityMetaData singleCityMetaData = cityNameResolver.getCityMetaData(cityName);
+        CityGeography singleCity = new CityGeography(singleCityMetaData);
+        GeometryCollection cityBoundaries = getCityBoundariesFromApi(singleCity);
+        singleCity.addBoundaries(cityBoundaries);
+        return singleCity;
     }
 }
