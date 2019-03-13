@@ -31,20 +31,6 @@ public class CityBoundariesService {
     }
 
 
-    private GeometryCollection getCityBoundariesFromApi(CityGeography cityDetails) throws RestApiException {
-        URI uri = UriComponentsBuilder.fromUriString(geojsonApiQuery).queryParam(ID_KEY, cityDetails.getOsmId()).build().toUri();
-        GeometryCollection cityBoundaries;
-        try {
-            cityBoundaries = restTemplate.getForObject(uri, GeometryCollection.class);
-        } catch (RestClientException e) {
-            throw new RestApiException();
-        }
-        if (cityBoundaries == null || cityBoundaries.getGeometries().isEmpty()) {
-            throw new RestApiNotFoundException();
-        }
-        return cityBoundaries;
-    }
-
     /**
      * Base method for finding GeoJSON prepared from a given city name
      *
@@ -63,8 +49,21 @@ public class CityBoundariesService {
     private CityGeography getCityGeography(String cityName) throws RestApiException {
         CityMetaData singleCityMetaData = cityNameResolver.getCityMetaData(cityName);
         CityGeography singleCity = new CityGeography(singleCityMetaData);
-        GeometryCollection cityBoundaries = getCityBoundariesFromApi(singleCity);
-        singleCity.addBoundaries(cityBoundaries);
+        singleCity.addBoundaries(getCityBoundariesFromApi(singleCity));
         return singleCity;
+    }
+
+    private GeometryCollection getCityBoundariesFromApi(CityGeography cityDetails) throws RestApiException {
+        URI uri = UriComponentsBuilder.fromUriString(geojsonApiQuery).queryParam(ID_KEY, cityDetails.getOsmId()).build().toUri();
+        GeometryCollection cityBoundaries;
+        try {
+            cityBoundaries = restTemplate.getForObject(uri, GeometryCollection.class);
+        } catch (RestClientException e) {
+            throw new RestApiException();
+        }
+        if (cityBoundaries == null || cityBoundaries.getGeometries().isEmpty()) {
+            throw new RestApiNotFoundException();
+        }
+        return cityBoundaries;
     }
 }
