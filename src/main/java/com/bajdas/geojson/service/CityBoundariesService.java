@@ -8,6 +8,7 @@ import com.bajdas.geojson.model.CityMetaData;
 import org.geojson.GeometryCollection;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
@@ -15,7 +16,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
 import java.util.List;
-
+@PropertySource("classpath:application.properties")
 @Service
 public class CityBoundariesService {
     private static final String ID_KEY = "id";
