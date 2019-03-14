@@ -56,6 +56,12 @@
 			<artifactId>springfox-swagger-ui</artifactId>
 			<version>2.4.0</version>
 		</dependency>
+		<dependency>
+			<groupId>com.mapbox.mapboxsdk</groupId>
+			<artifactId>mapbox-sdk-turf</artifactId>
+			<version>4.5.0</version>
+		</dependency>
+
 	</dependencies>
 
 	<build>

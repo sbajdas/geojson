@@ -6,6 +6,7 @@ import com.bajdas.geojson.model.CityGeography;
 import com.bajdas.geojson.model.CityGeographyCollection;
 import com.bajdas.geojson.model.CityMetaData;
 import org.geojson.GeometryCollection;
+import org.geojson.LineString;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
@@ -16,19 +17,22 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
 import java.util.List;
+
 @PropertySource("classpath:application.properties")
 @Service
 public class CityBoundariesService {
     private static final String ID_KEY = "id";
     private final CityIdService cityNameResolver;
     private final RestTemplate restTemplate;
+    private final DistanceService distanceService;
     @Value("${geojsonSearch}")
     private String geojsonApiQuery;
 
     @Autowired
-    public CityBoundariesService(CityIdService cityNameResolver, RestTemplate restTemplate) {
+    public CityBoundariesService(CityIdService cityNameResolver, RestTemplate restTemplate, DistanceService distanceService) {
         this.cityNameResolver = cityNameResolver;
         this.restTemplate = restTemplate;
+        this.distanceService = distanceService;
     }
 
 
@@ -39,18 +43,23 @@ public class CityBoundariesService {
      * @return geoJSON as String
      */
     public GeometryCollection getBatchCityBoundaries(List<String> cityNames) throws RestApiException {
+        CityGeographyCollection response = getCityGeographyCollection(cityNames);
+        return response.getAllPolygons();
+    }
+
+    private CityGeographyCollection getCityGeographyCollection(List<String> cityNames) throws RestApiException {
         CityGeographyCollection response = new CityGeographyCollection();
         for (String cityName : cityNames) {
             CityGeography singleCity = getCityGeography(cityName);
-            response.put(cityName,singleCity);
+            response.put(cityName, singleCity);
         }
-        return response.getAllPolygons();
+        return response;
     }
 
     private CityGeography getCityGeography(String cityName) throws RestApiException {
         CityMetaData singleCityMetaData = cityNameResolver.getCityMetaData(cityName);
         CityGeography singleCity = new CityGeography(singleCityMetaData);
-        singleCity.addBoundaries(getCityBoundariesFromApi(singleCity));
+        singleCity.setCityBoundaries(getCityBoundariesFromApi(singleCity));
         return singleCity;
     }
 
@@ -66,5 +75,16 @@ public class CityBoundariesService {
             throw new RestApiNotFoundException();
         }
         return cityBoundaries;
+    }
+
+    public GeometryCollection getBatchCityBoundariesWithLines(List<String> cityNames) throws RestApiException {
+        CityGeographyCollection response = getCityGeographyCollection(cityNames);
+        for (CityGeography singleCity : response.getCities()) {
+            LineString longestLine = distanceService.getLongestLine(singleCity.getPointList());
+            singleCity.setLongestLine(longestLine);
+        }
+        LineString longestLine = distanceService.getLongestLine(response.getAllPointList());
+        response.setLongestLine(longestLine);
+        return response.getAllPolygons();
     }
 }

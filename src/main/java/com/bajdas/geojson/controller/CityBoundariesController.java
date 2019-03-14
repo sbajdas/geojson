@@ -22,11 +22,14 @@ public class CityBoundariesController {
     }
 
     @GetMapping("/geojson/{cityNames}")
-    GeometryCollection getCityBoundaries(HttpServletRequest request, @PathVariable List<String> cityNames) throws RestApiException {
-
+    GeometryCollection getCityBoundaries(HttpServletRequest request,
+                                         @PathVariable List<String> cityNames,
+                                         @RequestParam(required = false) boolean line) throws RestApiException {
         String userName = request.getRemoteUser();
-        log.info(String.format("geoJSON city boundaries requested by %s : looking for %s", userName, String.join(",", cityNames)));
-        return cityBoundariesService.getBatchCityBoundaries(cityNames);
+        log.info(String.format("geoJSON city boundaries requested by %s : looking for %s%s",
+                userName, String.join(",", cityNames), (line) ? " with lines": ""));
+        return (line) ? cityBoundariesService.getBatchCityBoundariesWithLines(cityNames)
+                : cityBoundariesService.getBatchCityBoundaries(cityNames);
     }
 
     @ResponseStatus(HttpStatus.NOT_FOUND)
