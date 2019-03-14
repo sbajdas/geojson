@@ -13,7 +13,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.net.URI;
 
 @Component
-public class CityIdService {
+public class CityNameResolverService {
     private static final String FORMAT_KEY = "format";
     private static final String FORMAT_VALUE_JSON = "json";
     private static final String QUERY_KEY = "q";
@@ -22,7 +22,7 @@ public class CityIdService {
     private String apiQueryUrl;
 
     @Autowired
-    public CityIdService(RestTemplate restTemplate) {
+    public CityNameResolverService(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
     }
 

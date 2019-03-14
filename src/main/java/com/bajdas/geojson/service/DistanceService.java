@@ -17,7 +17,6 @@ public class DistanceService {
 
     LineString getLongestLine(List<Point> listOfPoints) {
         longestDistance = 0.0d;
-        longest = new Point[]{null,null};
         for (int i = 0; i < listOfPoints.size(); i++) {
             getLongestDistanceFromPoint(listOfPoints.get(i), listOfPoints.listIterator(i));
         }

@@ -1,7 +1,7 @@
 package com.bajdas.geojson.controller;
 
 import com.bajdas.geojson.exception.RestApiException;
-import com.bajdas.geojson.service.CityBoundariesService;
+import com.bajdas.geojson.service.CityGeographyService;
 import lombok.extern.slf4j.Slf4j;
 import org.geojson.GeometryCollection;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,11 +14,11 @@ import java.util.List;
 @Slf4j
 @RestController
 public class CityBoundariesController {
-    private final CityBoundariesService cityBoundariesService;
+    private final CityGeographyService cityGeographyService;
 
     @Autowired
-    public CityBoundariesController(CityBoundariesService cityBoundariesService) {
-        this.cityBoundariesService = cityBoundariesService;
+    public CityBoundariesController(CityGeographyService cityGeographyService) {
+        this.cityGeographyService = cityGeographyService;
     }
 
     @GetMapping("/geojson/{cityNames}")
@@ -28,8 +28,8 @@ public class CityBoundariesController {
         String userName = request.getRemoteUser();
         log.info(String.format("geoJSON city boundaries requested by %s : looking for %s%s",
                 userName, String.join(",", cityNames), (line) ? " with lines" : ""));
-        return (line) ? cityBoundariesService.getBatchCityBoundariesWithLines(cityNames)
-                : cityBoundariesService.getBatchCityBoundaries(cityNames);
+        return (line) ? cityGeographyService.getBatchCityBoundariesWithLines(cityNames)
+                : cityGeographyService.getBatchCityBoundaries(cityNames);
     }
 
     @ResponseStatus(HttpStatus.NOT_FOUND)

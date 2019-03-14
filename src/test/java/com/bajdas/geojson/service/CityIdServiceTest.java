@@ -21,7 +21,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 @EnableConfigurationProperties
-@SpringBootTest(classes = CityIdService.class)
+@SpringBootTest(classes = CityNameResolverService.class)
 @TestPropertySource(properties = "idsearch=localhost")
 //@ContextConfiguration(classes = CityIdService.class)
 @RunWith(MockitoJUnitRunner.class)
@@ -31,7 +31,7 @@ public class CityIdServiceTest {
     private RestTemplate restTemplate;
 
     @InjectMocks
-    private CityIdService cityIdService;
+    private CityNameResolverService cityIdService;
 
     @Test
     public void shouldReturnCityMetadataObject() throws RestApiException {
