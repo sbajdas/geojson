@@ -5,6 +5,7 @@ import com.bajdas.geojson.exception.RestApiNotFoundException;
 import com.bajdas.geojson.model.CityGeography;
 import com.bajdas.geojson.model.CityGeographyCollection;
 import com.bajdas.geojson.model.CityMetaData;
+import com.mapbox.geojson.Point;
 import org.geojson.GeometryCollection;
 import org.geojson.LineString;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,12 +28,18 @@ public class CityBoundariesService {
     private final DistanceService distanceService;
     @Value("${geojsonSearch}")
     private String geojsonApiQuery;
+    private PointListService pointListService;
+    private GeometryCollectionService geometryCollectionService;
 
     @Autowired
-    public CityBoundariesService(CityIdService cityNameResolver, RestTemplate restTemplate, DistanceService distanceService) {
+    public CityBoundariesService(CityIdService cityNameResolver, RestTemplate restTemplate,
+                                 DistanceService distanceService, PointListService pointListService,
+                                 GeometryCollectionService geometryCollectionService) {
         this.cityNameResolver = cityNameResolver;
         this.restTemplate = restTemplate;
         this.distanceService = distanceService;
+        this.pointListService = pointListService;
+        this.geometryCollectionService = geometryCollectionService;
     }
 
 
@@ -44,7 +51,7 @@ public class CityBoundariesService {
      */
     public GeometryCollection getBatchCityBoundaries(List<String> cityNames) throws RestApiException {
         CityGeographyCollection response = getCityGeographyCollection(cityNames);
-        return response.getAllPolygons();
+        return geometryCollectionService.getAllPolygons(response);
     }
 
     private CityGeographyCollection getCityGeographyCollection(List<String> cityNames) throws RestApiException {
@@ -80,11 +87,14 @@ public class CityBoundariesService {
     public GeometryCollection getBatchCityBoundariesWithLines(List<String> cityNames) throws RestApiException {
         CityGeographyCollection response = getCityGeographyCollection(cityNames);
         for (CityGeography singleCity : response.getCities()) {
-            LineString longestLine = distanceService.getLongestLine(singleCity.getPointList());
+            List<Point> pointsFromCity = pointListService.getPointList(singleCity);
+            LineString longestLine = distanceService.getLongestLine(pointsFromCity);
             singleCity.setLongestLine(longestLine);
+            singleCity.setPointList(pointsFromCity);
         }
-        LineString longestLine = distanceService.getLongestLine(response.getAllPointList());
+        List<Point> allPointList = pointListService.getAllPointList(response);
+        LineString longestLine = distanceService.getLongestLine(allPointList);
         response.setLongestLine(longestLine);
-        return response.getAllPolygons();
+        return geometryCollectionService.getAllPolygons(response);
     }
 }

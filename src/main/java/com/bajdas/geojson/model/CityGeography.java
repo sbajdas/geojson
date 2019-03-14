@@ -7,6 +7,7 @@ import org.geojson.GeometryCollection;
 import org.geojson.LineString;
 import org.geojson.MultiPolygon;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -17,7 +18,7 @@ public class CityGeography {
     private final CityMetaData metaData;
     private GeometryCollection cityBoundaries;
     private LineString longestLine;
-    private List<Point> pointList = new LinkedList<>();
+    private List<Point> pointList = new ArrayList<>();
 
     public CityGeography(CityMetaData metaData) {
         this.metaData = metaData;
@@ -27,26 +28,7 @@ public class CityGeography {
         return this.metaData.getOsm_id();
     }
 
-    public GeometryCollection getCityBoundaries(){
-        return cityBoundaries;
-    }
-
-    List<GeoJsonObject> getCityGeometries(){
+    public List<GeoJsonObject> getCityGeometries() {
         return cityBoundaries.getGeometries();
-    }
-
-    public List<Point> getPointList() {
-        GeoJsonObject geoJsonObject = cityBoundaries.getGeometries().get(0);
-        if (pointList.isEmpty() && geoJsonObject instanceof MultiPolygon) {
-            preparePointList((MultiPolygon) geoJsonObject);
-        }
-        return pointList;
-    }
-
-    private void preparePointList(MultiPolygon multiPolygon) {
-        pointList = multiPolygon.getCoordinates().stream()
-                .flatMap(Collection::stream).flatMap(Collection::stream)
-                .map(lngLat-> Point.fromLngLat(lngLat.getLongitude(),lngLat.getLatitude()))
-                .collect(Collectors.toList());
     }
 }

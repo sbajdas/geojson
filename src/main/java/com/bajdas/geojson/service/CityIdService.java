@@ -17,9 +17,9 @@ public class CityIdService {
     private static final String FORMAT_KEY = "format";
     private static final String FORMAT_VALUE_JSON = "json";
     private static final String QUERY_KEY = "q";
+    private final RestTemplate restTemplate;
     @Value("${idsearch}")
     private String apiQueryUrl;
-    private final RestTemplate restTemplate;
 
     @Autowired
     public CityIdService(RestTemplate restTemplate) {

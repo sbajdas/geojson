@@ -9,21 +9,19 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import java.net.URI;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
+
 @EnableConfigurationProperties
-@SpringBootTest(classes=CityIdService.class)
+@SpringBootTest(classes = CityIdService.class)
 @TestPropertySource(properties = "idsearch=localhost")
 //@ContextConfiguration(classes = CityIdService.class)
 @RunWith(MockitoJUnitRunner.class)
@@ -40,7 +38,7 @@ public class CityIdServiceTest {
 //        ReflectionTestUtils.setField(cityIdService,"apiQueryUrl","localhost");
         when(restTemplate.getForObject(any(URI.class), eq(CityMetaData[].class))).thenReturn(prepareCityMetaData());
         CityMetaData krakow = cityIdService.getCityMetaData("krakow");
-        assertEquals("1111",krakow.getOsm_id());
+        assertEquals("1111", krakow.getOsm_id());
     }
 
     private CityMetaData[] prepareCityMetaData() {
