@@ -32,6 +32,17 @@ public class CityBoundariesController {
                 : cityGeographyService.getBatchCityBoundaries(cityNames);
     }
 
+
+    @GetMapping("/neighbours/{cityNames}")
+    boolean getNeighboursStatus(HttpServletRequest request,
+                                         @PathVariable List<String> cityNames) throws RestApiException {
+        String userName = request.getRemoteUser();
+        boolean cityNeighbouringStatus = cityGeographyService.getNeighbouringStatus(cityNames);
+        log.info(String.format("geoJSON neighbouring status requested by %s : for %s, answer: %s",
+                userName, String.join(",", cityNames), cityNeighbouringStatus));
+        return cityNeighbouringStatus;
+    }
+
     @ResponseStatus(HttpStatus.NOT_FOUND)
     @ExceptionHandler(RestApiException.class)
     public String exception(RestApiException reason) {

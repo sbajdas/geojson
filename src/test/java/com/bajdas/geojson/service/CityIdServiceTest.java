@@ -10,6 +10,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
@@ -23,7 +24,6 @@ import static org.mockito.Mockito.when;
 @EnableConfigurationProperties
 @SpringBootTest(classes = CityNameResolverService.class)
 @TestPropertySource(properties = "idsearch=localhost")
-//@ContextConfiguration(classes = CityIdService.class)
 @RunWith(MockitoJUnitRunner.class)
 public class CityIdServiceTest {
 
@@ -35,7 +35,7 @@ public class CityIdServiceTest {
 
     @Test
     public void shouldReturnCityMetadataObject() throws RestApiException {
-//        ReflectionTestUtils.setField(cityIdService,"apiQueryUrl","localhost");
+        ReflectionTestUtils.setField(cityIdService,"apiQueryUrl","localhost");
         when(restTemplate.getForObject(any(URI.class), eq(CityMetaData[].class))).thenReturn(prepareCityMetaData());
         CityMetaData krakow = cityIdService.getCityMetaData("krakow");
         assertEquals("1111", krakow.getOsm_id());
@@ -49,7 +49,7 @@ public class CityIdServiceTest {
     @Test(expected = RestApiException.class)
     public void shouldThrowException() throws RestApiException {
         // given
-//        ReflectionTestUtils.setField(cityIdService,"apiQueryUrl","localhost");
+        ReflectionTestUtils.setField(cityIdService,"apiQueryUrl","localhost");
         when(restTemplate.getForObject(any(URI.class), eq(CityMetaData[].class))).thenThrow(new RestClientException("ups"));
         // when
         cityIdService.getCityMetaData("krakow");
