@@ -50,15 +50,6 @@ public class CityBoundariesController {
         return neighbouringService.getNeighbouringInfo(cityNames);
     }
 
-    @GetMapping("/neighboursLine/{cityNames}")
-    GeometryCollection getNeighboursLine(HttpServletRequest request,
-                                @PathVariable List<String> cityNames) throws RestApiException {
-        String userName = request.getRemoteUser();
-        log.info(String.format("geoJSON neighbouring line requested by %s : for %s%n",
-                userName, String.join(",", cityNames)));
-        return cityGeographyService.getNeighbouringLine(cityNames);
-    }
-
     @ResponseStatus(HttpStatus.NOT_FOUND)
     @ExceptionHandler(RestApiException.class)
     public String exception(RestApiException reason) {

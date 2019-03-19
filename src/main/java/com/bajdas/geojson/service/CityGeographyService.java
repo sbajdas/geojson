@@ -51,7 +51,7 @@ public class CityGeographyService {
         return geometryCollectionService.getAllPolygons(response);
     }
 
-    private CityGeographyCollection getCityGeographyCollection(List<String> cityNames) throws RestApiException {
+    CityGeographyCollection getCityGeographyCollection(List<String> cityNames) throws RestApiException {
         CityGeographyCollection response = new CityGeographyCollection();
         for (String cityName : cityNames) {
             CityGeography singleCity = getCityGeography(cityName);
@@ -85,36 +85,5 @@ public class CityGeographyService {
     }
 
 
-    public boolean isNeighbouring(List<String> cityNames) throws RestApiException {
-        List<Point> collect = getPoints(cityNames);
-        int count = Math.toIntExact(collect.stream().distinct().count());
-        return count != collect.size();
-    }
 
-    private List<Point> getPoints(List<String> cityNames) throws RestApiException {
-        CityGeographyCollection response = getCityGeographyCollection(cityNames);
-        response.getCities().forEach(s -> s.setPointList(pointListService.getPointList(s)));
-        return response.getCities().stream()
-                .map(s -> s.getPointList().stream()).flatMap(Stream::distinct).collect(Collectors.toList());
-    }
-
-    public GeometryCollection getNeighbouringLine(List<String> cityNames) throws RestApiException {
-        List<Point> collect = getPoints(cityNames);
-        HashSet<Point> allPoints = new HashSet<>();
-        List<Point> listPoints = collect.stream().filter(s -> !allPoints.add(s)).collect((Collectors.toList()));
-        com.mapbox.geojson.LineString lineForCalculation = com.mapbox.geojson.LineString.fromLngLats(listPoints);
-        double length = TurfMeasurement.length(lineForCalculation, "kilometres");
-        System.out.println("Granica [m]: " + length);
-        return getLineToDisplay(listPoints);
-    }
-
-    private GeometryCollection getLineToDisplay(List<Point> listPoints) {
-        LngLatAlt[] objects = listPoints.stream().map(this::getLngLatAlt).toArray(LngLatAlt[]::new);
-        LineString lineToDisplay = new LineString(objects);
-        return new GeometryCollection().add(lineToDisplay);
-    }
-
-    private LngLatAlt getLngLatAlt(Point point) {
-        return new LngLatAlt(point.longitude(), point.latitude());
-    }
 }
