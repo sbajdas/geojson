@@ -1,5 +1,7 @@
 package com.bajdas.geojson.service;
 
+import com.bajdas.geojson.model.CityGeography;
+import com.bajdas.geojson.model.CityGeographyCollection;
 import com.mapbox.geojson.Point;
 import com.mapbox.turf.TurfMeasurement;
 import org.geojson.LineString;
@@ -8,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.ListIterator;
+import java.util.stream.Collectors;
 
 @Service
 public class DistanceService {
@@ -41,5 +44,18 @@ public class DistanceService {
 
     private LngLatAlt getLngLatAlt(Point point) {
         return new LngLatAlt(point.longitude(), point.latitude());
+    }
+
+    LineString getLongestLineBetweenCities(CityGeographyCollection response) {
+        longestDistance = 0.0d;
+        List<List<Point>> listOfCities = response.getCities().stream()
+                .map(CityGeography::getPointList).collect(Collectors.toList());
+        for (int i = 0; i < listOfCities.size() - 1; i++) {
+            for (int j = i + 1; j < listOfCities.size(); j++) {
+                ListIterator<Point> nextCityIterator = listOfCities.get(j).listIterator();
+                listOfCities.get(i).forEach(s -> getLongestDistanceFromPoint(s, nextCityIterator));
+            }
+        }
+        return getLineString();
     }
 }

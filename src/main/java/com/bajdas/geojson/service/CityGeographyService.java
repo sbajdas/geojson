@@ -70,15 +70,11 @@ public class CityGeographyService {
     public GeometryCollection getBatchCityBoundariesWithLines(List<String> cityNames) throws RestApiException {
         CityGeographyCollection response = getCityGeographyCollection(cityNames);
         response.getCities().forEach(this::calculateLongestLine);
-        getLongestLineBetweenCities(response);
+        LineString longestLineBetweenCities = distanceService.getLongestLineBetweenCities(response);
+        response.setLongestLine(longestLineBetweenCities);
         return geometryCollectionService.getAllPolygons(response);
     }
 
-    private void getLongestLineBetweenCities(CityGeographyCollection response) {
-        List<Point> allPointList = pointListService.getAllPointList(response);
-        LineString longestLine = distanceService.getLongestLine(allPointList);
-        response.setLongestLine(longestLine);
-    }
 
     private void calculateLongestLine(CityGeography singleCity) {
         List<Point> pointsFromCity = pointListService.getPointList(singleCity);
