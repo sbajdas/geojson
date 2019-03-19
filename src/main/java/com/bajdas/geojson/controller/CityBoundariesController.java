@@ -1,7 +1,10 @@
 package com.bajdas.geojson.controller;
 
 import com.bajdas.geojson.exception.RestApiException;
+import com.bajdas.geojson.exception.ServiceException;
+import com.bajdas.geojson.model.NeighboursDTO;
 import com.bajdas.geojson.service.CityGeographyService;
+import com.bajdas.geojson.service.NeighbouringService;
 import lombok.extern.slf4j.Slf4j;
 import org.geojson.GeometryCollection;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,10 +18,12 @@ import java.util.List;
 @RestController
 public class CityBoundariesController {
     private final CityGeographyService cityGeographyService;
+    private NeighbouringService neighbouringService;
 
     @Autowired
-    public CityBoundariesController(CityGeographyService cityGeographyService) {
+    public CityBoundariesController(CityGeographyService cityGeographyService, NeighbouringService neighbouringService) {
         this.cityGeographyService = cityGeographyService;
+        this.neighbouringService = neighbouringService;
     }
 
     @GetMapping("/geojson/{cityNames}")
@@ -34,18 +39,35 @@ public class CityBoundariesController {
 
 
     @GetMapping("/neighbours/{cityNames}")
-    boolean getNeighboursStatus(HttpServletRequest request,
-                                         @PathVariable List<String> cityNames) throws RestApiException {
+    NeighboursDTO getNeighboursInfo(HttpServletRequest request,
+                                    @PathVariable List<String> cityNames) throws RestApiException, ServiceException {
         String userName = request.getRemoteUser();
-        boolean cityNeighbouringStatus = cityGeographyService.getNeighbouringStatus(cityNames);
-        log.info(String.format("geoJSON neighbouring status requested by %s : for %s, answer: %s",
-                userName, String.join(",", cityNames), cityNeighbouringStatus));
-        return cityNeighbouringStatus;
+        if(cityNames.size()!=2) {
+            throw new ServiceException("Please provide a list of 2 cities");
+        }
+        log.info(String.format("Neighbouring status requested by %s : for %s%n",
+                userName, String.join(",", cityNames)));
+        return neighbouringService.getNeighbouringInfo(cityNames);
+    }
+
+    @GetMapping("/neighboursLine/{cityNames}")
+    GeometryCollection getNeighboursLine(HttpServletRequest request,
+                                @PathVariable List<String> cityNames) throws RestApiException {
+        String userName = request.getRemoteUser();
+        log.info(String.format("geoJSON neighbouring line requested by %s : for %s%n",
+                userName, String.join(",", cityNames)));
+        return cityGeographyService.getNeighbouringLine(cityNames);
     }
 
     @ResponseStatus(HttpStatus.NOT_FOUND)
     @ExceptionHandler(RestApiException.class)
     public String exception(RestApiException reason) {
+        return reason.getMessage();
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(ServiceException.class)
+    public String serviceException(ServiceException reason) {
         return reason.getMessage();
     }
 
