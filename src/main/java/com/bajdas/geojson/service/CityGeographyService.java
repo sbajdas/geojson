@@ -4,19 +4,15 @@ import com.bajdas.geojson.exception.RestApiException;
 import com.bajdas.geojson.model.CityGeography;
 import com.bajdas.geojson.model.CityGeographyCollection;
 import com.bajdas.geojson.model.CityMetaData;
+import com.bajdas.geojson.service.distance.DistanceService;
 import com.mapbox.geojson.Point;
-import com.mapbox.turf.TurfMeasurement;
 import org.geojson.GeometryCollection;
 import org.geojson.LineString;
-import org.geojson.LngLatAlt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @PropertySource("classpath:application.properties")
 @Service
@@ -71,11 +67,10 @@ public class CityGeographyService {
     public GeometryCollection getBatchCityBoundariesWithLines(List<String> cityNames) throws RestApiException {
         CityGeographyCollection response = getCityGeographyCollection(cityNames);
         response.getCities().forEach(this::calculateLongestLine);
-        LineString longestLineBetweenCities = distanceService.getLongestLineBetweenCities(response);
-        response.setLongestLine(longestLineBetweenCities);
+//        LineString longestLineBetweenCities = distanceService.getLongestLineBetweenCities(response);
+//        response.setLongestLine(longestLineBetweenCities);
         return geometryCollectionService.getAllPolygons(response);
     }
-
 
     private void calculateLongestLine(CityGeography singleCity) {
         List<Point> pointsFromCity = pointListService.getPointList(singleCity);
@@ -83,7 +78,5 @@ public class CityGeographyService {
         singleCity.setLongestLine(longestLine);
         singleCity.setPointList(pointsFromCity);
     }
-
-
 
 }
