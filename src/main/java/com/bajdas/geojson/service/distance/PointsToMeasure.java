@@ -19,6 +19,8 @@ class PointsToMeasure implements Comparable {
 
     @Override
     public int compareTo(Object o) {
+        if(o.getClass()!= this.getClass())
+            return 0;
         double result = this.distance - ((PointsToMeasure) o).distance;
         if(result > 0)
             return 1;

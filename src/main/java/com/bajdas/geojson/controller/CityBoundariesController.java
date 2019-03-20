@@ -29,7 +29,7 @@ public class CityBoundariesController {
     @GetMapping("/geojson/{cityNames}")
     GeometryCollection getCityBoundaries(HttpServletRequest request,
                                          @PathVariable List<String> cityNames,
-                                         @RequestParam(required = false) boolean line) throws RestApiException {
+                                         @RequestParam(required = false) boolean line) throws RestApiException, ServiceException {
         String userName = request.getRemoteUser();
         log.info(String.format("geoJSON city boundaries requested by %s : looking for %s%s",
                 userName, String.join(",", cityNames), (line) ? " with lines" : ""));

@@ -1,11 +1,13 @@
 package com.bajdas.geojson.service.distance;
 
+import com.bajdas.geojson.exception.ServiceException;
 import com.bajdas.geojson.model.CityGeography;
 import com.bajdas.geojson.model.CityGeographyCollection;
 import com.google.common.util.concurrent.AtomicDouble;
 import com.mapbox.geojson.Point;
 import org.geojson.LineString;
 import org.geojson.LngLatAlt;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -14,9 +16,8 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 @Service
+@Scope("prototype")
 public class DistanceService {
-
-    private PointsToMeasure farthestPoints;
 
     /*
     1. obiekt z distansem i punktami?
@@ -24,7 +25,8 @@ public class DistanceService {
     3. runnable do obliczania odleglosci
      */
 
-    public LineString getLongestLine(List<Point> listOfPoints) {
+    public LineString getLongestLine(List<Point> listOfPoints) throws ServiceException {
+
         LinkedBlockingQueue<PointsToMeasure> queue = new LinkedBlockingQueue<>();
         ExecutorService executorService = Executors.newFixedThreadPool(5);
         executorService.submit(() -> addToQueue(listOfPoints, queue));
@@ -39,16 +41,19 @@ public class DistanceService {
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
         }
-        Arrays.sort(results);
-        return getLineString(results[0]);
+        executorService.shutdownNow();
+        PointsToMeasure farthestPoints = Arrays.stream(results).filter(s -> s.getFrom() != null)
+                .sorted().findFirst().orElseThrow(() -> new ServiceException("calculation error"));
+        return getLineString(farthestPoints);
     }
 
     private void addToQueue(List<Point> listOfPoints, LinkedBlockingQueue<PointsToMeasure> queue) {
-        System.out.println(Thread.currentThread().getName() + ": Start kolejki");
+        long start = System.currentTimeMillis();
+        System.out.println(Thread.currentThread().getName() + ": Start kolejki. Ilość punktów: " + listOfPoints.size());
         for (int i = 0; i < listOfPoints.size(); i++) {
             putConnectionsToQueue(queue, listOfPoints.get(i), listOfPoints.listIterator(i));
         }
-        System.out.println(Thread.currentThread().getName() + ": zakończono robić kolejkę");
+        System.out.println(Thread.currentThread().getName() + ": zakończono robić kolejkę: " + (System.currentTimeMillis()-start));
     }
 
     private void putConnectionsToQueue(LinkedBlockingQueue<PointsToMeasure> queue, Point startingPoint, ListIterator<Point> listIterator) {

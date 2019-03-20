@@ -1,6 +1,7 @@
 package com.bajdas.geojson.service;
 
 import com.bajdas.geojson.exception.RestApiException;
+import com.bajdas.geojson.exception.ServiceException;
 import com.bajdas.geojson.model.CityGeography;
 import com.bajdas.geojson.model.CityGeographyCollection;
 import com.bajdas.geojson.model.CityMetaData;
@@ -64,15 +65,17 @@ public class CityGeographyService {
         return singleCity;
     }
 
-    public GeometryCollection getBatchCityBoundariesWithLines(List<String> cityNames) throws RestApiException {
+    public GeometryCollection getBatchCityBoundariesWithLines(List<String> cityNames) throws RestApiException, ServiceException {
         CityGeographyCollection response = getCityGeographyCollection(cityNames);
-        response.getCities().forEach(this::calculateLongestLine);
+        for (CityGeography cityGeography : response.getCities()) {
+            calculateLongestLine(cityGeography);
+        }
 //        LineString longestLineBetweenCities = distanceService.getLongestLineBetweenCities(response);
 //        response.setLongestLine(longestLineBetweenCities);
         return geometryCollectionService.getAllPolygons(response);
     }
 
-    private void calculateLongestLine(CityGeography singleCity) {
+    private void calculateLongestLine(CityGeography singleCity) throws ServiceException {
         List<Point> pointsFromCity = pointListService.getPointList(singleCity);
         LineString longestLine = distanceService.getLongestLine(pointsFromCity);
         singleCity.setLongestLine(longestLine);
