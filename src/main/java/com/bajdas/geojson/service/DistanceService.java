@@ -51,11 +51,15 @@ public class DistanceService {
         List<List<Point>> listOfCities = response.getCities().stream()
                 .map(CityGeography::getPointList).collect(Collectors.toList());
         for (int i = 0; i < listOfCities.size() - 1; i++) {
-            for (int j = i + 1; j < listOfCities.size(); j++) {
-                ListIterator<Point> nextCityIterator = listOfCities.get(j).listIterator();
-                listOfCities.get(i).forEach(s -> getLongestDistanceFromPoint(s, nextCityIterator));
-            }
+            calculateLongestLineToOtherCities(listOfCities, i);
         }
         return getLineString();
+    }
+
+    private void calculateLongestLineToOtherCities(List<List<Point>> listOfCities, int i) {
+        for (int j = i + 1; j < listOfCities.size(); j++) {
+            ListIterator<Point> nextCityIterator = listOfCities.get(j).listIterator();
+            listOfCities.get(i).forEach(s -> getLongestDistanceFromPoint(s, nextCityIterator));
+        }
     }
 }

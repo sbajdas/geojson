@@ -10,6 +10,5 @@ import org.geojson.GeometryCollection;
 public class NeighboursDTO {
     private boolean isNeigbouring;
     private double borderLength;
-    private Point borderCenter;
-    private GeometryCollection border;
+    private GeometryCollection borderWithCenterPoint;
 }

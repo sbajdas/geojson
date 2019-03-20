@@ -4,9 +4,10 @@ import com.bajdas.geojson.exception.RestApiException;
 import com.bajdas.geojson.model.CityGeographyCollection;
 import com.bajdas.geojson.model.NeighboursDTO;
 import com.mapbox.geojson.Point;
-import com.mapbox.turf.*;
+import com.mapbox.turf.TurfConstants;
+import com.mapbox.turf.TurfMeasurement;
 import org.geojson.GeometryCollection;
-import org.geojson.LineString;
+import com.mapbox.geojson.LineString;
 import org.geojson.LngLatAlt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -29,18 +30,21 @@ public class NeighbouringService {
 
     public NeighboursDTO getNeighbouringInfo(List<String> cityNames) throws RestApiException {
         List<Point> borderPoints = getBorderPoints(cityNames);
-        if(borderPoints.size()==0)
+        if (borderPoints.size() == 0)
             return NeighboursDTO.builder().isNeigbouring(false).build();
+        LineString lineForCalculation = LineString.fromLngLats(borderPoints);
+        double borderLength = getBorderLength(lineForCalculation);
+        org.geojson.Point borderCenter = getBorderCenter(lineForCalculation, borderLength);
         return NeighboursDTO.builder()
                 .isNeigbouring(true)
-                .borderLength(getBorderLength(borderPoints))
-                .borderCenter(getBorderCenter(borderPoints))
-                .border(getLineToDisplay(borderPoints))
+                .borderLength(borderLength)
+                .borderWithCenterPoint(getLineToDisplay(borderPoints,borderCenter))
                 .build();
     }
 
-    private Point getBorderCenter(List<Point> borderPoints) {
-        return null;
+    private org.geojson.Point getBorderCenter(LineString borderPoints, double borderLength) {
+        Point along = TurfMeasurement.along(borderPoints, borderLength / 2.0d, TurfConstants.UNIT_KILOMETERS);
+        return new org.geojson.Point(getLngLatAlt(along));
     }
 
     private List<Point> getBorderPoints(List<String> cityNames) throws RestApiException {
@@ -57,15 +61,15 @@ public class NeighbouringService {
                 .flatMap(Stream::distinct).collect(Collectors.toList());
     }
 
-    private double getBorderLength(List<Point> listPoints) {
-        com.mapbox.geojson.LineString lineForCalculation = com.mapbox.geojson.LineString.fromLngLats(listPoints);
+    private double getBorderLength(LineString lineForCalculation) {
         return TurfMeasurement.length(lineForCalculation, TurfConstants.UNIT_KILOMETERS);
     }
 
-    private GeometryCollection getLineToDisplay(List<Point> listPoints) {
-        LngLatAlt[] objects = listPoints.stream().map(this::getLngLatAlt).toArray(LngLatAlt[]::new);
-        LineString lineToDisplay = new LineString(objects);
-        return new GeometryCollection().add(lineToDisplay);
+    private GeometryCollection getLineToDisplay(List<Point> listPoints, org.geojson.Point borderCenter) {
+        LngLatAlt[] points = listPoints.stream().map(this::getLngLatAlt).toArray(LngLatAlt[]::new);
+        return new GeometryCollection()
+                .add(new org.geojson.LineString(points))
+                .add(borderCenter);
     }
 
     private LngLatAlt getLngLatAlt(Point point) {
