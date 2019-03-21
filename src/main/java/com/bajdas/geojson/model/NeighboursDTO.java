@@ -1,6 +1,5 @@
 package com.bajdas.geojson.model;
 
-import com.mapbox.geojson.Point;
 import lombok.Builder;
 import lombok.Data;
 import org.geojson.GeometryCollection;

@@ -5,27 +5,22 @@ import com.bajdas.geojson.model.CityGeography;
 import com.bajdas.geojson.model.CityGeographyCollection;
 import com.bajdas.geojson.model.CityMetaData;
 import com.mapbox.geojson.Point;
-import com.mapbox.turf.TurfMeasurement;
 import org.geojson.GeometryCollection;
 import org.geojson.LineString;
-import org.geojson.LngLatAlt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @PropertySource("classpath:application.properties")
 @Service
 public class CityGeographyService {
     private final CityNameResolverService cityNameResolver;
     private final DistanceService distanceService;
-    private PointListService pointListService;
-    private GeometryCollectionService geometryCollectionService;
-    private CityBoundariesService cityBoundariesService;
+    private final PointListService pointListService;
+    private final GeometryCollectionService geometryCollectionService;
+    private final CityBoundariesService cityBoundariesService;
 
     @Autowired
     public CityGeographyService(CityNameResolverService cityNameResolver, DistanceService distanceService,

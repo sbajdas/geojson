@@ -18,7 +18,7 @@ import java.util.List;
 @RestController
 public class CityBoundariesController {
     private final CityGeographyService cityGeographyService;
-    private NeighbouringService neighbouringService;
+    private final NeighbouringService neighbouringService;
 
     @Autowired
     public CityBoundariesController(CityGeographyService cityGeographyService, NeighbouringService neighbouringService) {

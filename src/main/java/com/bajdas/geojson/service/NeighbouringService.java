@@ -19,8 +19,8 @@ import java.util.stream.Stream;
 
 @Service
 public class NeighbouringService {
-    private CityGeographyService cityGeographyService;
-    private PointListService pointListService;
+    private final CityGeographyService cityGeographyService;
+    private final PointListService pointListService;
 
     @Autowired
     public NeighbouringService(CityGeographyService cityGeographyService, PointListService pointListService) {

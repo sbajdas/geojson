@@ -8,6 +8,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Arrays;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 
 @Configuration
 public class AppConfig {
@@ -25,6 +28,21 @@ public class AppConfig {
     @Bean
     public BCryptPasswordEncoder bCryptPasswordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public ExecutorService executorService(){
+        return Executors.newFixedThreadPool(4, threadFactory());
+    }
+
+    private ThreadFactory threadFactory() {
+        return new ThreadFactory() {
+            int counter;
+            @Override
+            public Thread newThread(Runnable r) {
+                return new Thread(r,"obliczacz " + ++counter);
+            }
+        };
     }
 }
 

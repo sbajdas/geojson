@@ -5,13 +5,9 @@ import lombok.Data;
 import org.geojson.GeoJsonObject;
 import org.geojson.GeometryCollection;
 import org.geojson.LineString;
-import org.geojson.MultiPolygon;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Data
 public class CityGeography {
