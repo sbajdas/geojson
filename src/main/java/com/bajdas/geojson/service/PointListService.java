@@ -34,4 +34,11 @@ public class PointListService {
                     .flatMap(Collection::stream)
                     .collect(Collectors.toList());
     }
+
+    public List<List<Point>> getCitiesPointsList(CityGeographyCollection cityCollection) {
+        return cityCollection.getCities().stream()
+                .map(CityGeography::getPointList)
+                .collect(Collectors.toList());
+
+    }
 }
